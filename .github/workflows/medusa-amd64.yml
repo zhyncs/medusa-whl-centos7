@@ -1,0 +1,26 @@
+name: medusa amd64
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Run on CentOS 7
+    runs-on: ubuntu-latest
+    container:
+      image: "centos:7"
+
+    steps:
+        - name: Build
+          run: |
+              yum install wget -y
+              wget -c -t 3 https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && chmod +x Miniconda3-latest-Linux-x86_64.sh && ./Miniconda3-latest-Linux-x86_64.sh -b -p /usr/local/conda && export PATH=/usr/local/conda/bin:$PATH && conda install python=3.9.16 && python3 --version && pip3 --version
+              export PATH=/usr/local/conda/bin:$PATH && yum install git -y && git clone --depth=1 https://github.com/FasterDecoding/Medusa.git && cd Medusa && pip3 install build setuptools && python3 -m build && mv /__w/medusa-whl-centos7/medusa-whl-centos7/Medusa/dist/medusa_llm-1.0-py3-none-any.whl /__w/medusa-whl-centos7/medusa-whl-centos7/Medusa/dist/medusa_llm-main-py3-none-any.whl
+
+        - name: Upload Release
+          uses: softprops/action-gh-release@v1
+          env:
+              GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+          with:
+              name: medusa-llm
+              tag_name: 2024.02.27
+              files: /__w/medusa-whl-centos7/medusa-whl-centos7/Medusa/dist/medusa_llm-main-py3-none-any.whl
